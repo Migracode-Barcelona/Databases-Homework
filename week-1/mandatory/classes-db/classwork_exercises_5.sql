@@ -4,7 +4,7 @@ drop table if exists customers;
 
 CREATE TABLE customers (
   id       SERIAL PRIMARY KEY,
-  nameC     VARCHAR(30) NOT NULL,
+  name     VARCHAR(30) NOT NULL,
   email    VARCHAR(120) NOT NULL,
   address  VARCHAR(120),
   city     VARCHAR(30),
@@ -13,7 +13,7 @@ CREATE TABLE customers (
 );
 CREATE TABLE hotels (
   id       SERIAL PRIMARY KEY,
-  nameH     VARCHAR(120) NOT NULL,
+  name     VARCHAR(120) NOT NULL,
   rooms    INT NOT NULL,
   postcode VARCHAR(10)
 );
@@ -24,24 +24,24 @@ CREATE TABLE bookings (
   checkin_date  DATE NOT NULL,
   nights        INT NOT NULL
 );
-INSERT INTO customers (nameC, email, address, city, postcode, country) VALUES ('John Smith','j.smith@johnsmith.org','11 New Road','Liverpool','L10 2AB','UK');
-INSERT INTO customers (nameC, email, address, city, postcode, country) VALUES ('Sue Jones','s.jones1234@gmail.com','120 Old Street','London','N10 3CD','UK');
-INSERT INTO customers (nameC, email, address, city, postcode, country) VALUES ('Alice Evans','alice.evans001@hotmail.com','3 High Road','Manchester','m13 4ef','UK');
-INSERT INTO customers (nameC, email, address, city, postcode, country) VALUES ('Mohammed Trungpa','mo.trungpa@hotmail.com','25 Blue Road','Manchester','M25 6GH','UK');
-INSERT INTO customers (nameC, email, address, city, postcode, country) VALUES ('Steven King','steve.king123@hotmail.com','19 Bed Street','Newtown', 'xy2 3ac','UK');
-INSERT INTO customers (nameC, email, address, city, postcode, country) VALUES ('Nadia Sethuraman','nadia.sethuraman@mail.com','135 Green Street','Manchester','M10 4BG','UK');
-INSERT INTO customers (nameC, email, address, city, postcode, country) VALUES ('Melinda Marsh','mel.marsh-123@gmail.com','7 Preston Road','Oldham','OL3 5XZ','UK');
-INSERT INTO customers (nameC, email, address, city, postcode, country) VALUES ('Martín Sommer','martin.sommer@dfgg.net','C/ Romero, 33','Madrid','28016','Spain');
-INSERT INTO customers (nameC, email, address, city, postcode, country) VALUES ('Laurence Lebihan','laurence.lebihan@xmzx.net','12, rue des Bouchers','Marseille','13008','France');
-INSERT INTO customers (nameC, email, address, city, postcode, country) VALUES ('Keith Stewart','keith.stewart@gmail.com','84 Town Lane','Tadworth','td5 7ng','UK');
-INSERT INTO hotels (nameH, rooms, postcode) VALUES ('Golden Cavern Resort', 10, 'L10ABC');
-INSERT INTO hotels (nameH, rooms, postcode) VALUES ('Elder Lake Hotel', 5, 'L10ABC');
-INSERT INTO hotels (nameH, rooms, postcode) VALUES ('Pleasant Mountain Hotel', 7, 'ABCDE1');
-INSERT INTO hotels (nameH, rooms, postcode) VALUES ('Azure Crown Resort & Spa', 18, 'DGQ127');
-INSERT INTO hotels (nameH, rooms, postcode) VALUES ('Jade Peaks Hotel', 4, 'DGQ127');
-INSERT INTO hotels (nameH, rooms, postcode) VALUES ('Elegant Resort', 14, 'DGQ127');
-INSERT INTO hotels (nameH, rooms, postcode) VALUES ('Cozy Hotel', 20, 'AYD189');
-INSERT INTO hotels (nameH, rooms, postcode) VALUES ('Snowy Echo Motel', 15, 'AYD189');
+INSERT INTO customers (name, email, address, city, postcode, country) VALUES ('John Smith','j.smith@johnsmith.org','11 New Road','Liverpool','L10 2AB','UK');
+INSERT INTO customers (name, email, address, city, postcode, country) VALUES ('Sue Jones','s.jones1234@gmail.com','120 Old Street','London','N10 3CD','UK');
+INSERT INTO customers (name, email, address, city, postcode, country) VALUES ('Alice Evans','alice.evans001@hotmail.com','3 High Road','Manchester','m13 4ef','UK');
+INSERT INTO customers (name, email, address, city, postcode, country) VALUES ('Mohammed Trungpa','mo.trungpa@hotmail.com','25 Blue Road','Manchester','M25 6GH','UK');
+INSERT INTO customers (name, email, address, city, postcode, country) VALUES ('Steven King','steve.king123@hotmail.com','19 Bed Street','Newtown', 'xy2 3ac','UK');
+INSERT INTO customers (name, email, address, city, postcode, country) VALUES ('Nadia Sethuraman','nadia.sethuraman@mail.com','135 Green Street','Manchester','M10 4BG','UK');
+INSERT INTO customers (name, email, address, city, postcode, country) VALUES ('Melinda Marsh','mel.marsh-123@gmail.com','7 Preston Road','Oldham','OL3 5XZ','UK');
+INSERT INTO customers (name, email, address, city, postcode, country) VALUES ('Martín Sommer','martin.sommer@dfgg.net','C/ Romero, 33','Madrid','28016','Spain');
+INSERT INTO customers (name, email, address, city, postcode, country) VALUES ('Laurence Lebihan','laurence.lebihan@xmzx.net','12, rue des Bouchers','Marseille','13008','France');
+INSERT INTO customers (name, email, address, city, postcode, country) VALUES ('Keith Stewart','keith.stewart@gmail.com','84 Town Lane','Tadworth','td5 7ng','UK');
+INSERT INTO hotels (name, rooms, postcode) VALUES ('Golden Cavern Resort', 10, 'L10ABC');
+INSERT INTO hotels (name, rooms, postcode) VALUES ('Elder Lake Hotel', 5, 'L10ABC');
+INSERT INTO hotels (name, rooms, postcode) VALUES ('Pleasant Mountain Hotel', 7, 'ABCDE1');
+INSERT INTO hotels (name, rooms, postcode) VALUES ('Azure Crown Resort & Spa', 18, 'DGQ127');
+INSERT INTO hotels (name, rooms, postcode) VALUES ('Jade Peaks Hotel', 4, 'DGQ127');
+INSERT INTO hotels (name, rooms, postcode) VALUES ('Elegant Resort', 14, 'DGQ127');
+INSERT INTO hotels (name, rooms, postcode) VALUES ('Cozy Hotel', 20, 'AYD189');
+INSERT INTO hotels (name, rooms, postcode) VALUES ('Snowy Echo Motel', 15, 'AYD189');
 INSERT INTO bookings (customer_id, hotel_id, checkin_date, nights) VALUES (1, 1, '2019-10-01', 2);
 INSERT INTO bookings (customer_id, hotel_id, checkin_date, nights) VALUES (1, 1, '2019-12-10', 6);
 INSERT INTO bookings (customer_id, hotel_id, checkin_date, nights) VALUES (1, 3, '2019-07-20', 4);
@@ -58,9 +58,11 @@ INSERT INTO bookings (customer_id, hotel_id, checkin_date, nights) VALUES (8, 5,
 INSERT INTO bookings (customer_id, hotel_id, checkin_date, nights) VALUES (8, 8, '2019-12-25', 4);
 
 
-select * from customers where namec='Laurence Lebihan';
+
+
+select * from customers where name='Laurence Lebihan';
 select * from customers where country='UK';
-select address, city, postcode from customers where namec='Melinda Marsh';
+select address, city, postcode from customers where name='Melinda Marsh';
 select * from hotels where postcode ='DGQ127';
 select * from hotels where rooms > 11;
 select * from hotels where rooms > 6 and rooms < 15;

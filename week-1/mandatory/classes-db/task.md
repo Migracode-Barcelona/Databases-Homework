@@ -22,11 +22,9 @@ When you have finished all of the questions - open a pull request with your answ
 5. Insert 10 students in the `students` table.
 6. Verify that the data you created for mentors and students are correctly stored in their respective tables (hint: use a `select` SQL statement).
 7. Create a new `classes` table to record the following information:
-
    - A class has a leading mentor
    - A class has a topic (such as Javascript, NodeJS)
    - A class is taught at a specific date and at a specific location
-
 8. Insert a few classes in the `classes` table
 9. We now want to store who among the students attends a specific class. How would you store that? Come up with a solution and insert some data if you model this as a new table.
 10. Answer the following questions using a `select` SQL statement:
