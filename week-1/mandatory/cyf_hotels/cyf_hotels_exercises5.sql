@@ -62,6 +62,36 @@ INSERT INTO bookings (customer_id, hotel_id, checkin_date, nights) VALUES (8, 4,
 INSERT INTO bookings (customer_id, hotel_id, checkin_date, nights) VALUES (8, 5, '2020-01-03', 7);
 INSERT INTO bookings (customer_id, hotel_id, checkin_date, nights) VALUES (8, 8, '2019-12-25', 4);
 
+----Exercise 5 - WEEK 1, IN-CLASS
+select * from bookings;
+select * from customers c ;
+select * from hotels h ;
+
+----Retrieve all information for the customer Laurence Lebihan.
+select * from customers c where name='Laurence Lebihan';
+----Retrieve all customers name living in UK.
+select * from customers c where country='UK';
+----Retrieve the address, city and postcode of Melinda Marsh.
+select address, city, postcode from customers where name='Melinda Marsh';
+----Retrieve all hotels located in the postcode DGQ127.
+select * from hotels where postcode='DGQ127';
+----Retrieve all hotels with more than 11 rooms.
+select * from hotels where rooms > 11;
+----Retrieve all hotels with more than 6 rooms but less than 15 rooms.
+select * from hotels where rooms > 6 and rooms<15;
+----Retrieve all hotels with exactly 10 rooms or 20 rooms.
+select * from hotels where rooms = 10 or rooms = 20;
+----Retrieve all bookings for customer id 1.
+select * from bookings where customer_id =1;
+----Retrieve all bookings for more than 4 nights.
+select * from bookings where nights > 4;
+----Retrieve all bookings starting in 2020.
+select * from bookings where checkin_date > '2020-01-01' and checkin_date < '2020-12-31';
+----Retrieve all bookings before 2020 for less than 4 nights.
+select * from bookings where checkin_date < '2020-01-01' and nights < 4;
+
+
+----WEEK 2, IN-CLASS
 ALTER TABLE customers ADD COLUMN date_of_birth DATE;
 ALTER TABLE customers RENAME COLUMN date_of_birth to birthdate;
 ALTER TABLE customers DROP COLUMN birthdate;
@@ -133,10 +163,6 @@ where b.checkin_date > '2019-12-31'
 and b.checkin_date < '2021-01-01';
 
 ----Retrieve the customer names, booking start dates and number of nights for all customers who booked the hotel name Jade Peaks Hotel
-select * from bookings;
-select * from customers c ;
-select * from hotels h ;
-
 select c."name", b.checkin_date, b.nights from bookings b 
 inner join customers c on c.id = b.customer_id 
 inner join hotels h on h.id = b.hotel_id

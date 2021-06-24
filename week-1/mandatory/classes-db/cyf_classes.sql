@@ -1,3 +1,4 @@
+drop table if exists roster;
 drop table if exists classes;
 DROP TABLE IF EXISTS mentors;
 drop table if exists students;
@@ -66,12 +67,26 @@ insert into classes (leading_mentor, topic, date, location) values ('Gordon', 'J
 insert into classes (leading_mentor, topic, date, location) values ('Geraldine', 'SQL', '2021-08-23', 'Room 1');
 insert into classes (leading_mentor, topic, date, location) values ('Gwendolyn', 'Python', '2021-08-22', 'Room 4');
 insert into classes (leading_mentor, topic, date, location) values ('Garett', 'NodeJS', '2021-08-21', 'Room 6');
-
-
+insert into classes (leading_mentor, topic, date, location) values ('Grant', 'HTML/CSS', '2021-05-03', 'Room 2');
 
 ----9. We now want to store who among the students attends a specific class. How would you store that? Come up with a solution and insert some data if you model this as a new table.
-alter table students
-add column class VARCHAR (30);
+create table roster (
+id		SERIAL primary key,
+student_id	INT references students(id),
+class_id	INT references classes(id)
+);
+
+insert into roster (student_id, class_id) values (1, 6);
+insert into roster (student_id, class_id) values (2, 3);
+insert into roster (student_id, class_id) values (3, 7);
+insert into roster (student_id, class_id) values (4, 2);
+insert into roster (student_id, class_id) values (5, 1);
+insert into roster (student_id, class_id) values (6, 4);
+insert into roster (student_id, class_id) values (7, 5);
+insert into roster (student_id, class_id) values (8, 3);
+insert into roster (student_id, class_id) values (9, 2);
+insert into roster (student_id, class_id) values (10, 7);
+
 
 
 ----10. Answer the following questions using a `select` SQL statement:
@@ -84,6 +99,12 @@ select name from mentors where lan = 'Javascript';
 select name, graduated from students where graduated;
 
     ---- Retrieve all the classes taught before June this year
-select leading_mentor, topic from classes;
+select leading_mentor, topic from classes where date < '2021-06-01';
     ---- Retrieve all the students (retrieving student ids only is fine) who attended the Javascript class (or any other class that you have in the `classes` table).
-select id from students;
+select id from classes where topic = 'Javascript';
+select student_id from roster where class_id =1 or class_id =4;
+--Using inner join to do it in one query
+select s."name", s.id, c.topic, c.id from students s 
+inner join roster r on s.id = r.student_id 
+inner join classes c on c.id = r.class_id
+where c.topic='Javascript';
