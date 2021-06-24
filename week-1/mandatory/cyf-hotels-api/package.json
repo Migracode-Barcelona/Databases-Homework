@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "start": "node server.js"
+  },
+  "name": "sql-api",
+  "version": "1.0.0",
+  "main": "server.js",
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^8.6.0"
+  }
+}
