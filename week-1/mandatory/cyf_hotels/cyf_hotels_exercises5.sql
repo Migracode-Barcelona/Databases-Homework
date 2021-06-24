@@ -174,3 +174,14 @@ inner join customers c on c.id = b.customer_id
 inner join hotels h on h.id = b.hotel_id
 where nights > 5;
 
+----Exercise 6
+--Retrieve all customers whose name starts with the letter S
+select * from customers where name like 'S%';
+--Retrieve all hotels which have the word Hotel in their name
+select * from hotels where name like '%Hotel%';
+--Retrieve the booking start date, customer name, hotel name for the top 5 bookings ordered by number of nights in descending order
+select b.checkin_date, c."name", h."name" from bookings b 
+inner join customers c on b.customer_id = c.id
+inner join hotels h on b.hotel_id = h.id
+order by b.nights desc
+limit 5;
