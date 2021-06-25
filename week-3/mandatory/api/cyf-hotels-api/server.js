@@ -21,13 +21,6 @@ app.get("/hotels", (req, res) => {
     .catch((e) => console.error(e));
 });
 
-app.get("/customers", (req, res) => {
-  pool
-    .query("SELECT * FROM customers ORDER BY id")
-    .then((result) => res.json(result.rows))
-    .catch((e) => console.error(e));
-});
-
 //POST to create a new hotel
 app.post("/hotels", (req, res) => {
   /* BODY TEXT
@@ -115,7 +108,65 @@ app.post("/customers", (req, res) => {
     });
 });
 
-//GET endpoint "/hello-world" that returns OK -
+/* EXERCISE 2*/
+// Add the GET endpoints /hotels and /hotels/:hotelId mentioned above and try to use these endpoints with Postman.
+app.get("/hotelsbyname", (req, res) => {
+  pool
+    .query("SELECT * FROM hotels ORDER BY name")
+    .then((result) => res.json(result.rows))
+    .catch((error) => console.error(error));
+});
+
+app.get("/hotels/:hotelId", (req, res) => {
+  const hotelId = req.params.hotelId;
+  pool
+    .query("SELECT * FROM hotels WHERE id = $1", [hotelId])
+    .then((result) => res.json(result.rows))
+    .catch((error) => console.error(error));
+});
+
+// Add a new GET endpoint /customers to load all customers ordered by name.
+app.get("/customers", (req, res) => {
+  pool
+    .query("SELECT * FROM customers ORDER BY name")
+    .then((result) => res.json(result.rows))
+    .catch((e) => console.error(e));
+});
+
+// Add a new GET endpoint /customers/:customerId to load one customer by ID.
+app.get("/customers/:customerId", (req, res) => {
+  const customerId = req.params.customerId;
+  pool
+    .query("SELECT * FROM customers WHERE id=$1", [customerId])
+    .then((result) => {
+      if (result.rows.length <= 0) {
+        res.status(400).send("Customer doesn't exist!");
+      } else {
+        res.json(result.rows);
+      }
+    })
+    .catch((error) => console.error(error));
+});
+
+// Add a new GET endpoint /customers/:customerId/bookings to load all the bookings of a specific customer. Returns the following information: check in date, number of nights, hotel name, hotel postcode.
+app.get("/customers/:customerId/bookings", (req, res) => {
+  const customerId = req.params.customerId;
+  pool
+    .query(
+      "SELECT b.checkin_date, b.nights, h.name, h.postcode FROM customers c INNER JOIN bookings b ON c.id = b.customer_id INNER JOIN hotels h ON h.id = b.hotel_id WHERE c.id=$1",
+      [customerId]
+    )
+    .then((result) => {
+      if (result.rows.length <= 0) {
+        res.status(400).send("No bookings found for this customer!");
+      } else {
+        res.json(result.rows);
+      }
+    })
+    .catch((error) => console.error(error));
+});
+
+//GET default endpoint to confirm which project we are working with
 app.get("/", (req, res) => {
   res.send("cyf-hotels-api");
 });
