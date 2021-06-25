@@ -236,6 +236,36 @@ app.patch("/customers/:customerId", (req, res) => {
   }
 });
 
+//EXERCISE 4 - DELETE
+// Add the DELETE endpoint /customers/:customerId above and verify you can delete a customer along their bookings with Postman.
+app.delete("/customers/:customerId", (req, res) => {
+  const customerId = req.params.customerId;
+
+  pool
+    .query("DELETE FROM bookings WHERE customer_id=$1", [customerId])
+    .then(() => {
+      pool
+        .query("DELETE FROM customers where id=$1", [customerId])
+        .then(() => res.send(`Customer ${customerId} deleted!`))
+        .catch((error) => console.error(error));
+    });
+});
+
+// Add a new DELETE endpoint /hotels/:hotelId to delete a specific hotel. A hotel can only be deleted if it doesn't appear in any of the customers' bookings! Make sure you add the corresponding validation before you try to delete a hotel.
+app.delete("/hotels/:hotelId", (req, res) => {
+  const hotelId = req.params.hotelId;
+
+  pool
+    .query("DELETE FROM bookings WHERE hotel_id=$1", [hotelId])
+    .then(() => {
+      pool
+        .query("DELETE FROM hotels WHERE id=$1", [hotelId])
+        .then(() => res.send(`Hotel ${hotelId} deleted!`))
+        .catch((error) => console.error(error));
+    })
+    .catch((error) => console.error(error));
+});
+
 //GET default endpoint to confirm which project we are working with
 app.get("/", (req, res) => {
   res.send("cyf-hotels-api");
