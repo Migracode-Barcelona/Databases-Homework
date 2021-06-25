@@ -166,6 +166,76 @@ app.get("/customers/:customerId/bookings", (req, res) => {
     .catch((error) => console.error(error));
 });
 
+/* EXERCISE 3 */
+//Add the PATCH endpoint /customers/:customerId and verify you can update a customer email using Postman.
+app.patch("/customers/:customerId", (req, res) => {
+  const customerId = req.params.customerId;
+  const newEmail = req.body.email;
+
+  pool
+    .query("UPDATE customers SET email=$1 WHERE id=$2", [newEmail, customerId])
+    .then(() => res.send(`Customer ${customerId} updated!`))
+    .catch((e) => console.error(e));
+});
+
+// Add validation for the email before updating the customer record in the database. If the email is empty, return an error message.
+app.patch("/customers/:customerId", (req, res) => {
+  const customerId = req.params.customerId;
+  const newEmail = req.body.email;
+
+  if (newEmail == "") {
+    res.status(400).send("Please enter a valid email!");
+  }
+
+  pool
+    .query("UPDATE customers SET email=$1 WHERE id=$2", [newEmail, customerId])
+    .then(() => res.send(`Customer ${customerId} updated!`))
+    .catch((e) => console.error(e));
+});
+
+// Add the possibility to also update the address, the city, the postcode and the country of a customer. Be aware that if you want to update the city only for example, the other fields should not be changed!
+app.patch("/customers/:customerId", (req, res) => {
+  const customerId = req.params.customerId;
+  const newAddress = req.body.address;
+  const newCity = req.body.city;
+  const newPostcode = req.body.postcode;
+  const newCountry = req.body.country;
+
+  if (newAddress) {
+    pool
+      .query("UPDATE customers SET address=$1 WHERE id=$2", [
+        newAddress,
+        customerId,
+      ])
+      .then(() => res.send(`Customer ${customerId} updated!`))
+      .catch((e) => console.error(e));
+  }
+  if (newCity) {
+    pool
+      .query("UPDATE customers SET city=$1 WHERE id=$2", [newCity, customerId])
+      .then(() => res.send(`Customer ${customerId} updated!`))
+      .catch((e) => console.error(e));
+  }
+  if (newPostcode) {
+    pool
+      .query("UPDATE customers SET postcode=$1 WHERE id=$2", [
+        newPostcode,
+        customerId,
+      ])
+      .then(() => res.send(`Customer ${customerId} updated!`))
+      .catch((e) => console.error(e));
+  }
+  if (newCountry) {
+    pool
+      .query("UPDATE customers SET country=$1 WHERE id=$2", [
+        newCountry,
+        customerId,
+      ])
+      .then(() => res.send(`Customer ${customerId} updated!`))
+      .catch((e) => console.error(e));
+  }
+});
+
 //GET default endpoint to confirm which project we are working with
 app.get("/", (req, res) => {
   res.send("cyf-hotels-api");
