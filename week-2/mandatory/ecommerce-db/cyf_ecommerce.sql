@@ -159,6 +159,10 @@ inner join products p on p.id = oi.product_id
 inner join suppliers s on s.id = p.supplier_id
 where s.country = 'China';
 
+-- SELECT for API
+SELECT p.product_name, s.supplier_name FROM products p 
+inner join suppliers s on p.supplier_id = s.id; 
+
 
 
 
