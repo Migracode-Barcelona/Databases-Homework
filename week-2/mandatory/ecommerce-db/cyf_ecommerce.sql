@@ -164,26 +164,26 @@ SELECT p.product_name, s.supplier_name FROM products p inner join suppliers s on
 
 -- extra:
 -- get the top 5 suppliers who sell the most
-select s.supplier_name, sum(oi.quantity * p.unit_price) as "Supplier's sales amount" from suppliers s 
+select s.supplier_name, sum(oi.quantity * p.unit_price) as supplier_amount from suppliers s 
 inner join products p on s.id = p.supplier_id
 inner join order_items oi on oi.product_id = p.id 
 group by s.supplier_name
-order by "Supplier's sales amount" desc limit 5;
+order by supplier_amount desc limit 5;
 
 -- get top 3 customers that are buying more
-select c.name, sum(oi.quantity * p.unit_price) as "Sum of customer's purchases" from customers c 
+select c.name, sum(oi.quantity * p.unit_price) as amount_customer_purchases from customers c 
 inner join orders o on o.customer_id = c.id 
 inner join order_items oi on oi.order_id = o.id 
 inner join products p on p.id = oi.product_id
 group by c.name
-order by "Sum of customer's purchases" desc limit 3;
+order by amount_customer_purchases desc limit 3;
 
 -- get the top 2 products that are bought most times. Who is selling those products?
-select p.product_name, s.supplier_name, sum(oi.quantity * p.unit_price) as "Amount of product sales" from products p 
+select p.product_name, s.supplier_name, sum(oi.quantity * p.unit_price) as product_sales_amount from products p 
 inner join suppliers s on p.supplier_id = s.id
 inner join order_items oi on oi.product_id = p.id 
 group by p.product_name, s.supplier_name
-order by "Amount of product sales" desc limit 2;
+order by product_sales_amount desc limit 2;
 
 -- get the products that a customer bought based on user name
 select * from products p 
