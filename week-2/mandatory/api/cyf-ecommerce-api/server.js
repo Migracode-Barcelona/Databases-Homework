@@ -23,10 +23,13 @@ app.get("/suppliers", function (req, res) {
   });
 });
 
-app.get("/products", function (req, res) {
-  pool.query("SELECT * FROM products", (error, result) => {
-    res.json(result.rows);
-  });
+app.get("/products", (req, res) => {
+  pool.query(
+    "SELECT p.product_name, p.unit_price, s.supplier_name from products p inner join suppliers s ON s.id = p.supplier_id",
+    (error, result) => {
+      res.json(result.rows);
+    }
+  );
 });
 
 app.listen(3000, function () {
