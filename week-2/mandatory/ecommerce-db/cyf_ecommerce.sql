@@ -104,6 +104,7 @@ INSERT INTO order_items (order_id, product_id, quantity) VALUES(9, 13, 2);
 INSERT INTO order_items (order_id, product_id, quantity) VALUES(10, 14, 1);
 INSERT INTO order_items (order_id, product_id, quantity) VALUES(10, 6, 5);
 
+
 ---TASKS---
 ---Retrieve all the customers names and addresses who live in United States ---
 select name, address from customers c where country = 'United States';
@@ -138,7 +139,7 @@ inner join customers c on c.id = o.customer_id
 where c."name" = 'Hope Crosby';
 
 ---Retrieve all the products in the order ORD006. The result should only contain the columns product_name, unit_price and quantity---
-select p.product_name, p.unit_price, oi.quantity 
+select p.product_name, p.unit_price, oi.quantity from products p 
 inner join order_items oi on oi.product_id = p.id
 inner join orders o on oi.product_id = o.id 
 where o.order_reference = 'ORD006';
@@ -151,14 +152,55 @@ inner join orders o on o.id = oi.order_id
 inner join customers c on c.id = o.customer_id;
 
 ---Retrieve the names of all customers who bought a product from a supplier from China---
----Retrieve the names of all customers who bought a product from a supplier from China---
 select c.name from customers c 
 join orders o on o.customer_id = c.id 
 join order_items oi on oi.order_id = o.id 
 where oi.product_id in (
-select p.id
-from products p
+select p.id from products p
 join suppliers s on s.id = p.supplier_id
 where country = 'China'
 );
+
+---Extra exercises ---
+--- get the top 5 suppliers who sell the most---
+select s.supplier_name, o.order_reference, o.order_date, p.product_name, oi.quantity from products p 
+inner join order_items oi on oi.product_id = p.id
+inner join suppliers s on s.id = p.supplier_id 
+inner join orders o on o.id = oi.order_id 
+order by oi.quantity desc limit 5;
+
+---get top 3 customers that are buying more---
+select c.name, SUM (oi.quantity) as total from customers c
+inner join order_items oi ON oi.id = c.id
+inner join orders o on o.customer_id = c.id
+group by c.name
+order by total desc limit 3;
+
+select oi.quantity from order_items oi 
+inner join orders o ON o.id = oi.order_id 
+inner join customers c on c.id = o.customer_id 
+where c.name = 'Edan Higgins'
+
+
+---get the top 2 products that are bought most times. Who is selling those products?---
+select p.product_name, oi.quantity, s.supplier_name from products p 
+inner join order_items oi on oi.product_id = p.id 
+inner join orders o on o.id = oi.order_id
+inner join suppliers s on s.id = p.supplier_id 
+order by oi.quantity desc limit 2;
+
+---get the products that a customer bought based on user name---
+select c.name, p.product_name from products p 
+inner join order_items oi on oi.product_id = p.id
+inner join customers c on c.id = p.id;
+
+---get all the customers that have purchased items after the date of 2019-05-10 ---
+select c.name, o.order_date from customers c 
+inner join orders o on o.id = c.id
+where o.order_date > '2019-05-10';
+
+
+
+
+
 
