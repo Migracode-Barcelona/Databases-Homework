@@ -151,4 +151,14 @@ inner join orders o on o.id = oi.order_id
 inner join customers c on c.id = o.customer_id;
 
 ---Retrieve the names of all customers who bought a product from a supplier from China---
+---Retrieve the names of all customers who bought a product from a supplier from China---
+select c.name from customers c 
+join orders o on o.customer_id = c.id 
+join order_items oi on oi.order_id = o.id 
+where oi.product_id in (
+select p.id
+from products p
+join suppliers s on s.id = p.supplier_id
+where country = 'China'
+);
 
