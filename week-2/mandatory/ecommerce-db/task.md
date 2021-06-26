@@ -33,6 +33,24 @@ select p.product_name, p.unit_price, oi.quantity from products p inner join orde
 select c."name", o.order_reference, o.order_date, p.product_name, s.supplier_name, oi.quantity from customers c inner join orders o on c.id = o.customer_id inner join order_items oi on o.id = oi.order_id inner join products p on p.id = oi.product_id inner join suppliers s on s.id = p.supplier_id;
 12. Retrieve the names of all customers who bought a product from a supplier from China.
 select c."name", p.product_name, p.id from customers c inner join orders o on c.id = o.customer_id inner join order_items oi on o.id = oi.order_id inner join products p on p.id = oi.product_id inner join suppliers s on s.id = p.supplier_id where s.country = 'China';
+----EXTRAS
+--- get the top 5 suppliers who sell the most.
+select s.supplier_name , s.id, p.supplier_id, p.product_name , p.id, oi.product_id, oi.quantity from suppliers s inner join products p on s.id = p.supplier_id inner join order_items oi on p.id = oi.product_id order by oi.quantity desc limit 5;
+--- get top 3 customers that are buying more.
+select distinct oi.quantity, c."name", p.product_name from customers c inner join orders o on c.id = o.customer_id inner join order_items oi on o.id = oi.order_id inner join products p on p.id = oi.product_id order by oi.quantity desc limit 3;
+
+--- get the top 2 products that are bought most times. Who is selling those products?
+select s.supplier_name, p.product_name, oi.quantity from suppliers s inner join products p on s.id = p.supplier_id inner join order_items oi on p.id =oi.product_id order by oi.quantity desc limit 5;
+
+--- get the products that a customer bought based on user name.
+select p.product_name, c."name" from customers c inner join orders o on c.id = o.customer_id inner join order_items oi on o.id = oi.order_id inner join products p on p.id = oi.product_id;
+
+--- One of our suppliers, Amazon, has detected an issue for the following products: Javascript Book and Ball.
+--Inform the users that bought those products (from amazon) that they will be refunded
+select c."name", p.product_name, p.id from customers c inner join orders o ON c.id = o.customer_id inner join order_items oi on o.id = oi.order_id inner join products p on p.id = oi.product_id where p.supplier_id = 1 and (p.product_name = 'Javascript Book' or p.product_name = 'Ball');
+select * from products p2 ;
+-- Allow suppliers to add and remove the products they are providing.
+select p.product_name, s.supplier_name from products p inner join suppliers s on s.id = p.supplier_id;
 
 
 
