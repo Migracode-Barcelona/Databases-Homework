@@ -37,13 +37,20 @@ select c."name", p.product_name, p.id from customers c inner join orders o on c.
 --- get the top 5 suppliers who sell the most.
 select s.supplier_name , s.id, p.supplier_id, p.product_name , p.id, oi.product_id, oi.quantity from suppliers s inner join products p on s.id = p.supplier_id inner join order_items oi on p.id = oi.product_id order by oi.quantity desc limit 5;
 --- get top 3 customers that are buying more.
-select distinct oi.quantity, c."name", p.product_name from customers c inner join orders o on c.id = o.customer_id inner join order_items oi on o.id = oi.order_id inner join products p on p.id = oi.product_id order by oi.quantity desc limit 3;
+select c."name", SUM(oi.quantity) as total from customers c inner join orders o on c.id = o.customer_id inner join order_items oi on o.id = oi.order_id inner join products p on p.id = oi.product_id group by c."name" order by total desc limit 3;
+
+--to check  the above
+select oi.quantity from order_items oi inner join orders o on o.id = oi.order_id inner join customers c on c.id = o.customer_id where c."name" = 'Amber Tran';
+
+select c."name" , SUM (p.unit_price * oi.quantity ) as total from customers c inner join orders o on c.id = o.customer_id inner join order_items oi on o.id = oi.order_id inner join products p on p.id = oi.product_id
+group by c."name"
+order by total desc;
 
 --- get the top 2 products that are bought most times. Who is selling those products?
 select s.supplier_name, p.product_name, oi.quantity from suppliers s inner join products p on s.id = p.supplier_id inner join order_items oi on p.id =oi.product_id order by oi.quantity desc limit 5;
 
 --- get the products that a customer bought based on user name.
-select p.product_name, c."name" from customers c inner join orders o on c.id = o.customer_id inner join order_items oi on o.id = oi.order_id inner join products p on p.id = oi.product_id;
+select p.product_name, c."name" from customers c inner join orders o on c.id = o.customer_id inner join order_items oi on o.id = oi.order_id inner join products p on p.id = oi.product_id where c.name = '';
 
 --- One of our suppliers, Amazon, has detected an issue for the following products: Javascript Book and Ball.
 --Inform the users that bought those products (from amazon) that they will be refunded
