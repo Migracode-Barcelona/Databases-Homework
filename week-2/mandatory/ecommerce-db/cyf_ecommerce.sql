@@ -103,3 +103,15 @@ INSERT INTO order_items (order_id, product_id, quantity) VALUES(8, 5, 1);
 INSERT INTO order_items (order_id, product_id, quantity) VALUES(9, 13, 2);
 INSERT INTO order_items (order_id, product_id, quantity) VALUES(10, 14, 1);
 INSERT INTO order_items (order_id, product_id, quantity) VALUES(10, 6, 5);
+
+
+SELECT name, address FROM customers WHERE country = 'United States';
+SELECT * FROM customers ORDER BY name ASC;
+SELECT * FROM products WHERE unit_price > 100;
+SELECT * FROM products WHERE product_name LIKE '%socks%';
+SELECT * FROM products WHERE unit_price ORDER BY DESC LIMIT 5;
+SELECT product_name, unit_price, supplier_name FROM products p JOIN suppliers s ON  p.suppliers_id = s.id;
+SELECT product_name, supplier_name FROM products p JOIN suppliers s ON p.suppliers_id = s.id WHERE s.country = 'United Kingdom'; 
+SELECT * FROM orders WHERE customer_id = 1;
+SELECT * FROM orders o JOIN customers c ON o.customer_id = c.id WHERE c.name = `Hope Crosby`;
+SELECT product_name, unit_price, quantity FROM order_items oi JOIN
