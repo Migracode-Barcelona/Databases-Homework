@@ -201,6 +201,10 @@ inner join products p on p.id = oi.product_id
 inner join suppliers s on s.id = p.supplier_id
 where s.supplier_name = 'Taobao' and (p.product_name = 'Javascript Book' or p.product_name = 'Ball');
 
+-- Allow suppliers to add and remove the products they are providing
+-- queries for extra exercise
+INSERT INTO products (product_name, unit_price, supplier_id) VALUES ('Mobile Phone Samsung Galaxy 11', 499, 1);
+
 
 
 

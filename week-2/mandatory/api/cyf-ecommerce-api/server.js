@@ -1,8 +1,11 @@
 const express = require("express");
+const cors = require("cors");
 
 const app = express();
 
-app.use(express.json())
+app.use(cors());
+
+app.use(express.json());
 
 
 const { Pool } = require('pg');
@@ -89,8 +92,8 @@ app.get("/top3customers", function (req, res) {
 
 // get the top 2 products that are bought most times. Who is selling those products?
 app.get("/top2products", function (req, res) {
-    let sqlQuery = 
-    `select p.product_name, s.supplier_name, sum(oi.quantity * p.unit_price) as product_sales_amount from products p 
+    let sqlQuery =
+        `select p.product_name, s.supplier_name, sum(oi.quantity * p.unit_price) as product_sales_amount from products p 
     inner join suppliers s on p.supplier_id = s.id
     inner join order_items oi on oi.product_id = p.id 
     group by p.product_name, s.supplier_name
@@ -122,6 +125,35 @@ app.get("/user", function (req, res) {
         });
 });
 
+// Allow suppliers to add the products they are providing
+app.post("/product", (req, res) => {
+    const { product_name, unit_price, supplier_id } = req.body;
+    let sqlQuery =
+        `INSERT INTO products (product_name, unit_price, supplier_id) VALUES ('${product_name}', ${unit_price}, ${supplier_id});`
+    console.log(sqlQuery);
+    pool
+        .query(sqlQuery)
+        .then(() => res.send("Product added!"))
+        .catch((e) => console.error(e));
+});
+
+// Allow suppliers to delete the products they are providing
+app.delete("/user", function (req, res) {
+    let customer = req.query.userName;
+    let sqlQuery =
+        `select * from products p 
+        inner join order_items oi on oi.product_id = p.id
+        inner join orders o on o.id = oi.order_id 
+        inner join customers c on o.customer_id = c.id 
+        where c.name = '${customer}';`
+    pool
+        .query(sqlQuery)
+        .then((result) => res.json(result.rows))
+        .catch((e) => {
+            console.error(e);
+            res.status(404).send({ error: error.message })
+        });
+});
 
 // set port, listen for requests
 app.listen(3000, function () {
