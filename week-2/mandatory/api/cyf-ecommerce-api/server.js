@@ -138,21 +138,12 @@ app.post("/product", (req, res) => {
 });
 
 // Allow suppliers to delete the products they are providing
-app.delete("/user", function (req, res) {
-    let customer = req.query.userName;
-    let sqlQuery =
-        `select * from products p 
-        inner join order_items oi on oi.product_id = p.id
-        inner join orders o on o.id = oi.order_id 
-        inner join customers c on o.customer_id = c.id 
-        where c.name = '${customer}';`
+app.delete("/product/:productId", function (req, res) {
+    const productId = req.params.productId;
     pool
-        .query(sqlQuery)
-        .then((result) => res.json(result.rows))
-        .catch((e) => {
-            console.error(e);
-            res.status(404).send({ error: error.message })
-        });
+        .query("DELETE FROM products WHERE id=$1", [productId])
+        .then(() => res.send(`Product ${productId} deleted!`))
+        .catch((e) => console.error(e));
 });
 
 // set port, listen for requests
