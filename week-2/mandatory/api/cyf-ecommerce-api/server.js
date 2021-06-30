@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-
 const app = express();
+const secret = require("./secret.json")
 
 app.use(cors());
 
@@ -10,13 +10,7 @@ app.use(express.json());
 
 const { Pool } = require('pg');
 
-const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'cyf_ecommerce',
-    password: '1234qwer',
-    port: 5432
-});
+const pool = new Pool(secret);
 
 
 
