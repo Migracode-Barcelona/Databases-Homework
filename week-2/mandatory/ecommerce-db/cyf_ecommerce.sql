@@ -156,3 +156,10 @@ JOIN products p ON oi.product_id = p.id
 JOIN customers c ON o.customer_id = c.id
 JOIN suppliers s ON p.supplier_id = s.id
 WHERE s.country = 'China';
+
+--Datos de los customer que hayan pedido el mismo dia que el pedido mas reciente
+
+SELECT * FROM customers c 
+JOIN orders o ON c.id = o.customer_id WHERE (
+    SELECT MAX(order_date) FROM orders o 
+    ) ;
