@@ -7,9 +7,10 @@ app.use(cors());
 app.use(express.json());
 
 const { Pool } = require('pg');
+const { json } = require("express");
 const pool = new Pool(secret);
 
-// Allow suppliers to add the products they are providing
+// Add a new POST endpoint `/customers` to create a new customer.
 app.post("/customers", (req, res) => {
     const { name, address, city, country } = req.body;
     let sqlQuery =
@@ -18,6 +19,31 @@ app.post("/customers", (req, res) => {
         .query(sqlQuery, [name, address, city, country])
         .then((result2) => res.json(result2.rows[0]))
         .catch((e) => console.error(e));
+});
+
+
+// Add a new POST endpoint `/products` to create a new product (with a product name, a price and a supplier id). 
+// Check that the price is a positive integer and that the supplier ID exists in the database, otherwise return an error.
+app.post("/products", function (req, res) {
+    // console.log(req.body);
+    const { product_name, unit_price, supplier_id } = req.body;
+    pool
+        .query("SELECT * FROM suppliers WHERE id=$1", [supplier_id])
+        .then((result) => {
+            if (result.rows.length == 0) {
+                return res
+                    .status(400)
+                    .send(`Error. A supplier with supplier_id = ${supplier_id} not found.`);
+            } else {
+                const query =
+                    "INSERT INTO products (product_name, unit_price, supplier_id) VALUES ($1, $2, $3) RETURNING id as product_Id";
+                pool
+                    .query(query, [product_name, unit_price, supplier_id])
+                    .then((result2) => {
+                        res.send(`Product was added with id = ${result2.rows[0].product_id}` )})
+                    .catch((e) => console.error(e));
+            }
+        });
 });
 
 //- Add a new GET endpoint `/customers` to load all the customers from the database
