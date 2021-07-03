@@ -9,6 +9,17 @@ app.use(express.json());
 const { Pool } = require('pg');
 const pool = new Pool(secret);
 
+// Allow suppliers to add the products they are providing
+app.post("/customers", (req, res) => {
+    const { name, address, city, country } = req.body;
+    let sqlQuery =
+        'INSERT INTO customers (name, address, city, country) VALUES ($1, $2, $3, $4) RETURNING id as customerId;';
+    pool
+        .query(sqlQuery, [name, address, city, country])
+        .then((result2) => res.json(result2.rows[0]))
+        .catch((e) => console.error(e));
+});
+
 //- Add a new GET endpoint `/customers` to load all the customers from the database
 app.get("/customers", function (req, res) {
     pool.query('SELECT * FROM customers', (error, result) => {
@@ -129,17 +140,7 @@ app.get("/user", function (req, res) {
         });
 });
 
-// Allow suppliers to add the products they are providing
-app.post("/product", (req, res) => {
-    const { product_name, unit_price, supplier_id } = req.body;
-    let sqlQuery =
-        `INSERT INTO products (product_name, unit_price, supplier_id) VALUES ('${product_name}', ${unit_price}, ${supplier_id});`
-    console.log(sqlQuery);
-    pool
-        .query(sqlQuery)
-        .then(() => res.send("Product added!"))
-        .catch((e) => console.error(e));
-});
+
 
 // Allow suppliers to delete the products they are providing
 app.delete("/product/:productId", function (req, res) {
