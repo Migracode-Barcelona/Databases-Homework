@@ -4,17 +4,10 @@ const app = express();
 const secret = require("./secret.json")
 
 app.use(cors());
-
 app.use(express.json());
 
-
 const { Pool } = require('pg');
-
 const pool = new Pool(secret);
-
-
-
-
 
 //- Add a new GET endpoint `/customers` to load all the customers from the database
 app.get("/customers", function (req, res) {
@@ -26,6 +19,15 @@ app.get("/customers", function (req, res) {
         }
     })
 })
+
+app.get("/customers/:customerId", function (req, res) {
+    const customerId = req.params.customerId;
+
+    pool
+        .query("SELECT * FROM customers WHERE id=$1", [customerId])
+        .then((result) => res.json(result.rows))
+        .catch((e) => console.error(e));
+});
 
 //- Add a new GET endpoint `/suppliers` to load all the suppliers from the database
 app.get("/suppliers", function (req, res) {
@@ -45,26 +47,16 @@ app.get("/suppliers", function (req, res) {
 
 
 app.get("/products", function (req, res) {
-    // let sqlFilter = '';
     let sql = 'SELECT p.product_name, s.supplier_name FROM products p inner join suppliers s on p.supplier_id = s.id '
-    if (req.query) {
-        console.log(req.query);
-        const filterName = req.query.name;
-        console.log(filterName);
-        if (filterName) {
-            sql = sql + `WHERE p.product_name LIKE '%${filterName}%'`
-        }
+
+    const productNameQuery = req.query.name;
+    if (productNameQuery) {
+        sql = sql + `WHERE p.product_name LIKE '%${productNameQuery}%'`
     }
-
-
-    console.log(sql);
-    pool.query(sql, (error, result) => {
-        if (result) {
-            res.json(result.rows);
-        } else {
-            res.status(404).send({ error: error.message });
-        }
-    })
+    pool
+        .query(sql)
+        .then((result) => res.json(result.rows))
+        .catch((e) => console.error(e));
 })
 
 // get the top 5 suppliers who sell the most

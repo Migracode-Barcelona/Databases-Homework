@@ -205,6 +205,6 @@ where s.supplier_name = 'Taobao' and (p.product_name = 'Javascript Book' or p.pr
 -- queries for extra exercise
 INSERT INTO products (product_name, unit_price, supplier_id) VALUES ('Mobile Phone Samsung Galaxy 11', 499, 1);
 
---SELECT p.product_name, s.supplier_name FROM products p inner join suppliers s on p.supplier_id = s.id WHERE p.product_name LIKE '%Tee%';
+SELECT p.product_name, s.supplier_name FROM products p inner join suppliers s on p.supplier_id = s.id WHERE p.product_name LIKE '%Tee%';
 
 
