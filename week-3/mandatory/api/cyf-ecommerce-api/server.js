@@ -1,14 +1,8 @@
 const express = require("express");
 const app = express();
 const { Pool } = require("pg");
-
-const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "cyf_ecommerce",
-  password: "660182",
-  port: 5432,
-});
+const secret = require("./secret.json");
+const pool = new Pool(secret);
 
 app.get("/customers", function (req, res) {
   pool.query("SELECT * FROM customers", (error, result) => {
