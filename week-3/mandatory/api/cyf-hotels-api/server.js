@@ -2,14 +2,9 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const { Pool } = require("pg");
+const secret = require("./secret.json");
 
-const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "cyf_hotels_exercise5",
-  password: "660182",
-  port: 5432,
-});
+const pool = new Pool(secret);
 
 app.use(bodyParser.json());
 
@@ -87,7 +82,7 @@ app.post("/customers", (req, res) => {
   const newCountry = req.body.country;
 
   pool
-    .query("SELECT * FROM customers WHERE name = $1 AND email = $2", [
+    .query("SELECT * FROM customers WHERE name = $1 OR email = $2", [
       newName,
       newEmail,
     ])
@@ -95,7 +90,7 @@ app.post("/customers", (req, res) => {
       if (result.rows.length > 0) {
         return res
           .status(400)
-          .send("A customer with the same name and email already exists!");
+          .send("A customer with the same name or email already exists!");
       } else {
         pool
           .query(
@@ -168,42 +163,60 @@ app.get("/customers/:customerId/bookings", (req, res) => {
 
 /* EXERCISE 3 */
 //Add the PATCH endpoint /customers/:customerId and verify you can update a customer email using Postman.
-app.patch("/customers/:customerId", (req, res) => {
-  const customerId = req.params.customerId;
-  const newEmail = req.body.email;
+// app.patch("/customers/:customerId", (req, res) => {
+//   const customerId = req.params.customerId;
+//   const newEmail = req.body.email;
 
-  pool
-    .query("UPDATE customers SET email=$1 WHERE id=$2", [newEmail, customerId])
-    .then(() => res.send(`Customer ${customerId} updated!`))
-    .catch((e) => console.error(e));
-});
+//   pool
+//     .query("UPDATE customers c SET email=$1 WHERE id=$2", [
+//       newEmail,
+//       customerId,
+//     ])
+//     .then(() => res.send(`Customer ${customerId} updated!`))
+//     .catch((e) => console.error(e));
+// });
 
 // Add validation for the email before updating the customer record in the database. If the email is empty, return an error message.
-app.patch("/customers/:customerId", (req, res) => {
-  const customerId = req.params.customerId;
-  const newEmail = req.body.email;
+// app.patch("/customers/:customerId", (req, res) => {
+//   const customerId = req.params.customerId;
+//   const newEmail = req.body.email;
 
-  if (newEmail == "") {
-    res.status(400).send("Please enter a valid email!");
-  }
+//   if (newEmail == "") {
+//     res.status(400).send("Please enter a valid email!");
+//   }
 
-  pool
-    .query("UPDATE customers SET email=$1 WHERE id=$2", [newEmail, customerId])
-    .then(() => res.send(`Customer ${customerId} updated!`))
-    .catch((e) => console.error(e));
-});
+//   pool
+//     .query("UPDATE customers SET email=$1 WHERE id=$2", [newEmail, customerId])
+//     .then(() => res.send(`Customer ${customerId} updated!`))
+//     .catch((e) => console.error(e));
+// });
 
 // Add the possibility to also update the address, the city, the postcode and the country of a customer. Be aware that if you want to update the city only for example, the other fields should not be changed!
 app.patch("/customers/:customerId", (req, res) => {
   const customerId = req.params.customerId;
+  const newEmail = req.body.email;
   const newAddress = req.body.address;
   const newCity = req.body.city;
   const newPostcode = req.body.postcode;
   const newCountry = req.body.country;
 
+  if (newEmail == "") {
+    res.status(400).send("Please enter a valid email!");
+  }
+
+  if (newEmail) {
+    pool
+      .query("UPDATE customers SET email=$1 WHERE id=$2", [
+        newEmail,
+        customerId,
+      ])
+      .then(() => res.send(`Customer ${customerId} updated!`))
+      .catch((e) => console.error(e));
+  }
+
   if (newAddress) {
     pool
-      .query("UPDATE customers SET address=$1 WHERE id=$2", [
+      .query("UPDATE customers c SET address=$1 WHERE id=$2", [
         newAddress,
         customerId,
       ])
@@ -255,6 +268,9 @@ app.delete("/customers/:customerId", (req, res) => {
 app.delete("/hotels/:hotelId", (req, res) => {
   const hotelId = req.params.hotelId;
 
+  pool.query(
+    "SELECT * FROM bookings b INNER JOIN hotels h on b.hotel_id = h.id "
+  );
   pool
     .query("DELETE FROM bookings WHERE hotel_id=$1", [hotelId])
     .then(() => {
