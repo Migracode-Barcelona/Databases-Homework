@@ -96,6 +96,27 @@ app.get("/customers/:customerId", function (req, res) {
         .catch((e) => console.error(e));
 });
 
+// Add a new GET endpoint `/customers/:customerId/orders` to load all the orders along the items in the orders of a specific 
+// customer. Especially, the following information should be returned: order references, order dates, product names, 
+//unit prices, suppliers and quantities.
+app.get("/customers/:customerId/orders", function (req, res) {
+    const customerId = req.params.customerId;
+    let sqlQuery =
+        `select o.order_reference, order_date, p.product_name, p.unit_price, s.supplier_name, oi.quantity  from orders o 
+        inner join order_items oi on oi.order_id = o.id
+        inner join products p on p.id = oi.product_id 
+        inner join suppliers s on s.id = p.supplier_id
+        inner join customers c on o.customer_id = c.id 
+        where c.id = ${customerId}`
+    pool
+        .query(sqlQuery)
+        .then((result) => res.json(result.rows))
+        .catch((e) => {
+            console.error(e);
+            res.status(404).send({ error: error.message })
+        });
+});
+
 //- Add a new GET endpoint `/suppliers` to load all the suppliers from the database
 app.get("/suppliers", function (req, res) {
     pool.query('SELECT * FROM suppliers', (error, result) => {
@@ -111,8 +132,6 @@ app.get("/suppliers", function (req, res) {
 // add a new GET endpoint /products to load all the product names along with their supplier names.
 // Update the previous GET endpoint /products to filter the list of products by name using a query parameter, for example /products
 // name=Cup. This endpoint should still work even if you don’t use the name query parameter!
-
-
 app.get("/products", function (req, res) {
     let sql = 'SELECT p.product_name, s.supplier_name FROM products p inner join suppliers s on p.supplier_id = s.id '
 
@@ -209,6 +228,38 @@ app.put("/customers/:customerId", function (req, res) {
 
 });
 
+
+// Add a new DELETE endpoint `/orders/:orderId` to delete an existing order along all the associated order items.
+app.delete("/orders/:orderId", function (req, res) {
+    const orderId = req.params.orderId;
+    pool
+        .query("DELETE FROM order_items WHERE order_id=$1", [orderId])
+        .then(() =>
+            pool
+                .query("DELETE FROM orders WHERE id=$1", [orderId])
+                .then(() => res.send(`Order ${orderId} deleted with its order_items!`))
+                .catch((e) => console.error(e)));
+});
+
+// Add a new DELETE endpoint `/customers/:customerId` to delete an existing customer only if this customer doesn't have orders.
+app.delete("/customers/:customerId", function (req, res) {
+    const customerId = req.params.customerId;
+    pool
+        .query("SELECT * FROM orders WHERE customer_id=$1", [customerId])
+        .then((result) => {
+            console.log(result.rows)
+            if (result.rows.length > 0) {
+                return res
+                    .status(400)
+                    .send("This customer has orders! Deletion in not possible!");
+            } else {
+                pool
+                    .query("DELETE FROM customers WHERE id=$1", [customerId])
+                    .then(() => res.send(`Customer ${customerId} deleted!`))
+                    .catch((e) => console.error(e));
+            }
+        });
+});
 
 // Allow suppliers to delete the products they are providing
 app.delete("/product/:productId", function (req, res) {
