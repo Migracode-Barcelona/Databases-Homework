@@ -57,7 +57,19 @@ app.get("/customers/:customerId", (req, res) => {
 // app.put();
 
 //Add a new DELETE endpoint `/orders/:orderId` to delete an existing order along all the associated order items.
-// app.delete("/orders/:ordererId", (req, res) => {});
+app.delete("/orders/:ordererId", (req, res) => {
+  const orderId = req.params.ordererId;
+
+  pool
+    .query(`DELETE FROM order_items WHERE order_id=${orderId}`)
+    .then(() => {
+      pool
+        .query(`DELETE FROM orders WHERE id=${orderId}`)
+        .then(() => res.send(`Order #${orderId} deleted!`))
+        .catch((error) => console.error(error));
+    })
+    .catch((error) => console.error(error));
+});
 
 //Add a new DELETE endpoint `/customers/:customerId` to delete an existing customer only if this customer doesn't have orders.
 app.delete("/customers/:customerId", (req, res) => {
@@ -75,7 +87,7 @@ app.delete("/customers/:customerId", (req, res) => {
       } else {
         pool
           .query(`DELETE FROM customers WHERE id=${customerId}`)
-          .then((result) => res.send(`Customer ${customerId} deleted!`))
+          .then(() => res.send(`Customer ${customerId} deleted!`))
           .catch((error) => console.error(error));
       }
     })
