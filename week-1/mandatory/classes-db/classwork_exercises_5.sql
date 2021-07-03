@@ -119,5 +119,10 @@ INNER JOIN hotels ON hotels.id = bookings.hotel_id
 ORDER BY bookings.nights DESC 
 LIMIT 5;
 
+--check in date, number of nights, hotel name, hotel postcode
+select b.checkin_date, b.nights, h.name, h.postcode from bookings b 
+inner join hotels h on h.id = b.hotel_id 
+inner join customers c on c.id = b.customer_id 
+where customer_id = 3;
 
-
+--INSERT INTO bookings (customer_id, hotel_id, checkin_date, nights) VALUES (8, 8, '2019-12-25', 4);
