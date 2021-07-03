@@ -25,8 +25,12 @@ app.post("/customers", (req, res) => {
 // Add a new POST endpoint `/products` to create a new product (with a product name, a price and a supplier id). 
 // Check that the price is a positive integer and that the supplier ID exists in the database, otherwise return an error.
 app.post("/products", function (req, res) {
-    // console.log(req.body);
     const { product_name, unit_price, supplier_id } = req.body;
+    if (!Number.isInteger(unit_price) || unit_price <= 0) {
+        return res
+            .status(400)
+            .send("The unit_price should be a positive integer.");
+    }
     pool
         .query("SELECT * FROM suppliers WHERE id=$1", [supplier_id])
         .then((result) => {
@@ -40,7 +44,33 @@ app.post("/products", function (req, res) {
                 pool
                     .query(query, [product_name, unit_price, supplier_id])
                     .then((result2) => {
-                        res.send(`Product was added with id = ${result2.rows[0].product_id}` )})
+                        res.send(`Product was added with id = ${result2.rows[0].product_id}`)
+                    })
+                    .catch((e) => console.error(e));
+            }
+        });
+});
+
+// Add a new POST endpoint `/customers/:customerId/orders` to create a new order (including an order date, and an order reference)
+// for a customer. Check that the customerId corresponds to an existing customer or return an error.
+app.post("/customers/:customerId/orders", function (req, res) {
+    const { order_date, order_reference, customer_id } = req.body;
+
+    pool
+        .query("SELECT * FROM customers WHERE id=$1", [customer_id])
+        .then((result) => {
+            if (result.rows.length == 0) {
+                return res
+                    .status(400)
+                    .send(`Error. A customer with customer_id = ${customer_id} not found. Order has not been added`);
+            } else {
+                const query =
+                    "INSERT INTO orders (order_date, order_reference, customer_id) VALUES ($1, $2, $3) RETURNING id";
+                pool
+                    .query(query, [order_date, order_reference, customer_id])
+                    .then((result2) => {
+                        res.send(`Order added with id = ${result2.rows[0].id}`)
+                    })
                     .catch((e) => console.error(e));
             }
         });
@@ -166,6 +196,18 @@ app.get("/user", function (req, res) {
         });
 });
 
+// Add a new PUT endpoint `/customers/:customerId` to update an existing customer (name, address, city and country).
+app.put("/customers/:customerId", function (req, res) {
+    const customerId = req.params.customerId;
+    const { name, address, city, country } = req.body;
+
+    pool
+        .query("UPDATE customers SET name=$1, address=$2, city=$3, country=$4 WHERE id=$5",
+            [name, address, city, country, customerId])
+        .then(() => res.send(`Customer ${customerId} updated!`))
+        .catch((e) => console.error(e));
+
+});
 
 
 // Allow suppliers to delete the products they are providing
