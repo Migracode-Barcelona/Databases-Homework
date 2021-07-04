@@ -1,8 +1,10 @@
 const express = require("express");
 const app = express();
+const bodyParser = require("body-parser");
 const { Pool } = require("pg");
 const secret = require("./secret.json");
 const pool = new Pool(secret);
+app.use(bodyParser.json());
 
 app.get("/customers", function (req, res) {
   pool.query("SELECT * FROM customers", (error, result) => {
@@ -48,10 +50,90 @@ app.get("/customers/:customerId", (req, res) => {
 });
 
 //Add a new POST endpoint `/customers` to create a new customer.
+app.post("/customers", (req, res) => {
+  const newName = req.body.name;
+  const newAddress = req.body.address;
+  const newCity = req.body.city;
+  const newCountry = req.body.country;
+
+  /* BODY */
+  // {
+  //       "name": "",
+  //       "address": "",
+  //       "city": "",
+  //       "country": ""
+  // }
+
+  const query =
+    "INSERT INTO customers (name, address, city, country) VALUES ($1, $2, $3, $4) returning id as customerId";
+  //return id as customerId - Selectively renames the information that is returned as a name that may be more user-friendly for the customer when they get their response but has no impact on the database
+
+  pool
+    .query(query, [newName, newAddress, newCity, newCountry])
+    .then((result) => res.json(result.rows[0]))
+    .catch((error) => console.error(error));
+});
 
 //Add a new POST endpoint `/products` to create a new product (with a product name, a price and a supplier id). Check that the price is a positive integer and that the supplier ID exists in the database, otherwise return an error.
+app.post("/products", (req, res) => {
+  const newProductName = req.body.product_name;
+  const newUnitPrice = req.body.unit_price;
+  const newSupplierId = req.body.supplier_id;
+
+  if (!Number.isInteger(newUnitPrice) || newUnitPrice <= 0) {
+    return res.status(400).send("The unit price should be a positive integer.");
+  }
+  pool
+    .query("SELECT * FROM products where supplier_id=$1", [newSupplierId])
+    .then((result) => {
+      if (result.rows.length <= 0) {
+        return res
+          .status(400)
+          .send(
+            "The supplier ID does not match with any existing suppliers. Create a new supplier first before adding a product."
+          );
+      } else {
+        pool
+          .query(
+            "INSERT INTO products (product_name, unit_price, supplier_id) VALUES ($1, $2, $3)",
+            [newProductName, newUnitPrice, newSupplierId]
+          )
+          .then(() => res.send("New product added!"))
+          .catch((error) => console.error(error));
+      }
+    })
+    .catch((error) => console.error(error));
+});
 
 //Add a new POST endpoint `/customers/:customerId/orders` to create a new order (including an order date, and an order reference) for a customer. Check that the customerId corresponds to an existing customer or return an error.
+app.post("/customers/:customerId", (req, res) => {
+  const customerId = req.params.customerId;
+
+  const newOrderDate = req.body.order_date;
+  const newOrderReference = req.body.order_reference;
+  const newCustomerId = req.body.customer_id;
+
+  pool
+    .query("SELECT * FROM customers WHERE id = $1", [customerId])
+    .then((result) => {
+      if (result.rows.length <= 0) {
+        return res
+          .status(400)
+          .send(
+            "There is no customer registered with that ID. Please register a new customer profile first before making your order."
+          );
+      } else {
+        pool
+          .query(
+            "INSERT INTO orders (order_date, order_reference, customer_id) VALUES ($1, $2, $3)",
+            [newOrderDate, newOrderReference, newCustomerId]
+          )
+          .then(() => res.send("Order success!"))
+          .catch((error) => console.error(error));
+      }
+    })
+    .catch((error) => console.error(error));
+});
 
 //Add a new PUT endpoint `/customers/:customerId` to update an existing customer (name, address, city and country).
 // app.put();
