@@ -108,7 +108,7 @@ app.get("/hotels/:hotelId", function (req, res) {
   const hotelId = req.params.body;
   pool
     .query("SELECT * FROM hotels where id=$1", [hotelId])
-    .then((result) => res.json(result.rows))
+    .then((result) => res.json(result.rows[0]))
     .catch((e) => console.error(e));
 });
 
