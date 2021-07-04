@@ -106,12 +106,18 @@ app.post("/products", (req, res) => {
 });
 
 //Add a new POST endpoint `/customers/:customerId/orders` to create a new order (including an order date, and an order reference) for a customer. Check that the customerId corresponds to an existing customer or return an error.
-app.post("/customers/:customerId", (req, res) => {
+app.post("/customers/:customerId/orders", (req, res) => {
   const customerId = req.params.customerId;
 
   const newOrderDate = req.body.order_date;
   const newOrderReference = req.body.order_reference;
-  const newCustomerId = req.body.customer_id;
+
+  /* BODY */
+  // {
+  //   "order_date" : "",
+  //   "order_reference" : "",
+  //   "customer_id" : ""
+  // }
 
   pool
     .query("SELECT * FROM customers WHERE id = $1", [customerId])
@@ -126,7 +132,7 @@ app.post("/customers/:customerId", (req, res) => {
         pool
           .query(
             "INSERT INTO orders (order_date, order_reference, customer_id) VALUES ($1, $2, $3)",
-            [newOrderDate, newOrderReference, newCustomerId]
+            [newOrderDate, newOrderReference, customerId]
           )
           .then(() => res.send("Order success!"))
           .catch((error) => console.error(error));
@@ -136,7 +142,32 @@ app.post("/customers/:customerId", (req, res) => {
 });
 
 //Add a new PUT endpoint `/customers/:customerId` to update an existing customer (name, address, city and country).
-// app.put();
+app.put("/customers/:customerId", (req, res) => {
+  const customerId = req.params.customerId;
+  //Create object
+  const newName = req.body.name;
+  const newAddress = req.body.address;
+  const newCity = req.body.city;
+  const newCountry = req.body.country;
+  //Find customer with the matching ID
+  //Replace the old customer info with the new one
+  pool
+    .query("SELECT * FROM customers WHERE id=$1", [customerId])
+    .then((result) => {
+      if (result.rows.length <= 0) {
+        return res.status(400).send("There is no customer with that ID!");
+      } else {
+        pool
+          .query(
+            "UPDATE customers SET name=$1, address=$2, city=$3, country=$4 WHERE id=$5",
+            [newName, newAddress, newCity, newCountry, customerId]
+          )
+          .then(() => res.send("Customer updated!"))
+          .catch((error) => console.error(error));
+      }
+    })
+    .catch((error) => console.error(error));
+});
 
 //Add a new DELETE endpoint `/orders/:orderId` to delete an existing order along all the associated order items.
 app.delete("/orders/:ordererId", (req, res) => {
