@@ -63,6 +63,8 @@ app.post("/customers", (req, res) => {
   //   postcode: req.body.postcode,
   //   country: req.body.country,
   // };    Why doesn't this work???
+  ////Or this?
+  // const [name, email, address, city, postcode, country] = req.body;
 
   /* BODY TEXT
 {
