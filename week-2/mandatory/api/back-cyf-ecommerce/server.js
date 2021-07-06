@@ -19,15 +19,15 @@ const pool = new Pool({
 
 //Database querys
 const selectProdByName = `SELECT p.*, supplier_name 
-FROM products p JOIN suppliers s ON p.supplier_id = s.id
-WHERE p.product_name = $1`
-
-
-
+    FROM products p JOIN suppliers s ON p.supplier_id = s.id
+    WHERE p.product_name = $1`
+;
+const selectAllProducts = `SELECT * FROM products`;
 const selectProducts = `SELECT p.product_name , s.supplier_name 
     FROM suppliers s INNER JOIN products p on p.supplier_id = s.id 
     WHERE p.id = $1`
 ;
+
 const selectCustomerById = `SELECT * FROM customers WHERE id = $1`
 const selectedCustomer = `SELECT name FROM customers WHERE name = $1`
 const createCustomer = `INSERT INTO customers (name, address, city, country) VALUES ($1, $2, $3, $4)`
@@ -38,8 +38,11 @@ const createProduct = `INSERT INTO products (product_name, unit_price, supplier_
 
 const createOrder = `INSERT INTO orders (order_date, order_reference, customer_id) VALUES ($1, $2, $3)`
 
-app.use(express.json());
+const deleteOrderItems = `DELETE FROM order_items WHERE order_id = $1 RETURNING *`
+const deleteOrder = `DELETE FROM orders WHERE id = $1 RETURNING *`
 
+app.use(express.json());
+//customers
 app.get('/customers', function (req, res) {
     pool.query('SELECT * FROM customers', (error, result) => {
         res.status(200).json(result.rows)
@@ -47,23 +50,24 @@ app.get('/customers', function (req, res) {
 })
 app.get('/customers/:id', function (req, res) {
     let customerId = parseInt(req.params.id)
+    let isInvalid = isNaN(customerId)
 
-    if ( customerId === NaN) {
+    if (isInvalid) {
         return res.send('The values must be an integer')
-    }//Por que no se ejecuta esto?
+    }
 
     pool.connect( (err, client, release) => {
         if (err) {
-            res.send('Error acquiring client', err.stack)
+            res.status(500).send('Error acquiring client', err.stack)
         }
         
         client.query(selectCustomerById, [customerId], (err, result) => {
             release
             if (err) {
-                res.send('Error excecuting query')
+                res.status(500).send('Error excecuting query')
             }
             if (result.rowCount === 0) {
-                res.send('This customer does not exist')
+                res.status(404).send('This customer does not exist')
             }
             res.status(200).send(result.rows)
             
@@ -87,7 +91,10 @@ app.post('/customers', function (req, res) {
                 res.send('This customer already exists')
             } else {
                 client.query(createCustomer, values, (err, result) => {
-                    release
+                    release;
+                    if (err) {
+                        return res.status(500).send('Error excecuting query')
+                    }
                     res.status(200).send('New customer posted')
                 })
             }
@@ -115,7 +122,7 @@ app.post('/customers/:customerId/orders', function (req, res) {
                 client.query(createOrder, values, (err, result) => {
                     release
                     if (err) {
-                        res.send(err.message)
+                        res.status(500).send(err.message)
                     }
                     res.status(201).send(`The order was realized, please check your email`)
                 })
@@ -149,19 +156,40 @@ app.put('/customers/:customerId', function (req, res) {
     })
 
 })
+//suppliers
 app.get('/suppliers', function (req, res) {
     pool.query('SELECT * FROM suppliers', (error, result) => {
         res.status(200).json(result.rows)
     })
 })
+//products
 app.get('/products', function (req, res) {
-    let name = req.query.name
+    let {name} = req.query
 
-    pool.query(selectProdByName, [name],
-        (error, result) => {
-            res.status(200).json(result.rows)
+    pool.connect( (err, client, release) => {
+        if (err) {
+            res.status(500).send('Error acquiring client')
         }
-    )
+        let query;
+        let value;
+        if (name) {
+            query = selectProdByName ;
+            value = [name];  
+        } else {
+            query = selectAllProducts;
+            value = [];
+        }
+        client.query(query, value, (err, result) => {
+            release();
+            if(err) {
+                res.status(500).send(err.stack)
+            }else if(result.rowCount > 0) {
+                res.status(200).json(result.rows)
+            }else {
+                res.status(404).send(`Row not found`)
+            }
+        })
+    })
 })
 
 
@@ -210,7 +238,32 @@ app.post('/products', function (req, res) {
     })
 
 })
+//orders
+app.delete('/orders/:orderId', function (req, res) {
+    let order_id = parseInt(req.params.orderId)
+          
+    pool.connect((err, client, release) => {
+        if (err) {
+            res.send('Error acquiring client')
+        }
+        client.query(deleteOrderItems, [order_id], (err, result) => {
+            if (err) {
+                res.send('Error excecuting query')
+            }
+            if (result.rowCount > 0) {
+                client.query(deleteOrder, [order_id], (err, result) => {
+                    release;
+                    if (result.rowCount > 0 ) {
+                        res.status(201).send(`Deleted lines:${result.rowCount}.`)
+                    }
+                    
+                })
+            }
+            
+        })
+    })
 
+})
 
 
 const port = 3000
