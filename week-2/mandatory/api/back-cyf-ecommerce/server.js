@@ -32,6 +32,7 @@ const selectCustomerById = `SELECT * FROM customers WHERE id = $1`
 const selectedCustomer = `SELECT name FROM customers WHERE name = $1`
 const createCustomer = `INSERT INTO customers (name, address, city, country) VALUES ($1, $2, $3, $4)`
 const updateCustomer = `UPDATE customers SET name = $1, address = $2, city = $3, country = $4 WHERE id = $5`
+const deleteCUstomer = `DELETE FROM customers WHERE id = $1 RETURNING *`
 
 const selectSupplier = `SELECT * FROM suppliers WHERE id = $1`
 const createProduct = `INSERT INTO products (product_name, unit_price, supplier_id) VALUES ($1, $2, $3)`
@@ -40,7 +41,14 @@ const createOrder = `INSERT INTO orders (order_date, order_reference, customer_i
 
 const deleteOrderItems = `DELETE FROM order_items WHERE order_id = $1 RETURNING *`
 const deleteOrder = `DELETE FROM orders WHERE id = $1 RETURNING *`
-
+const selectCustomerOrders = 'SELECT * FROM orders WHERE customer_id = $1'
+const selectOrderDetailofCustomer = `SELECT order_reference, order_date, product_name,
+    unit_price, supplier_name, quantity
+    FROM order_items oi JOIN orders o ON oi.order_id = o.id
+    JOIN customers c ON o.customer_id = c.id
+    JOIN products p ON oi.product_id = p.id
+    JOIN suppliers s ON p.supplier_id = s.id WHERE c.id = $1;`
+;
 app.use(express.json());
 //customers
 app.get('/customers', function (req, res) {
@@ -193,7 +201,7 @@ app.get('/products', function (req, res) {
 })
 
 
-app.get("/products/:product_id", async (request, response) => { 
+app.get("/products/:product_id", async (request, response) =>{ 
     let par = parseInt(request.params.product_id) 
     let max = 0; 
 
@@ -239,6 +247,33 @@ app.post('/products', function (req, res) {
 
 })
 //orders
+app.get('/customers/:customerId/orders',  (req, res) => {
+    const customerId = parseInt(req.params.customerId)
+
+    if (customerId > 0) {
+        pool.connect( (err, client, release) => {
+            if (err) {
+                res.send('Error acquiring client')
+            }
+            client.query(selectCustomerById, [customerId], (err, result) => {
+                if(result.rowCount < 1) {
+                    res.send('This customer does not exists')
+                } else {
+                    client.query(selectOrderDetailofCustomer, [customerId], (err, result) => {
+                        release
+                        if (err) {
+                            res.status(500).send(err.message)
+                        }
+                        if (result.rowCount < 1) {
+                            return res.status(404).send('This customer doesnt have any orders')
+                        }
+                        res.status(201).send(result.rows)
+                    })
+                }
+            })
+        })
+    }
+})
 app.delete('/orders/:orderId', function (req, res) {
     let order_id = parseInt(req.params.orderId)
           
@@ -261,6 +296,36 @@ app.delete('/orders/:orderId', function (req, res) {
             }
             
         })
+    })
+
+})
+app.delete('/customers/:customerId', async (req, res) => {
+    const customerId = parseInt(req.params.customerId)
+
+    pool.connect((err, client, release) => {
+        if (err) {
+            res.send('Error acquiring client')
+        }
+        
+        if (customerId > 0) {
+            client.query(selectCustomerOrders, [customerId], (err, result) => {
+                if (result.rowCount === 0) {
+
+                    client.query(deleteCustomer, [customerId], (err, result) => {
+                        release;
+                        if (err) {
+                            res.send('Error excecuting query')
+                        };
+                        if (result.rowCount > 0) {
+                        res.status(200)
+                        .send(`${result.rowCount} customer was deleted`)  
+                        };
+                    })
+                } else {
+                    return res.send('Not possible to delete the customer.This customer has already orders')
+                }
+            } )
+        }
     })
 
 })
