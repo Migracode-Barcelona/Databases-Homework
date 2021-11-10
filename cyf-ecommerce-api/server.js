@@ -49,6 +49,33 @@ app.post("/customers", (req, res)=>{
             {res.send(e), console.error(e)})
 }
 )
+//Add a new POST endpoint `/customers/:customerId/orders` to create a new order 
+//(including an order date, and an order reference) for a customer. 
+//Check that the customerId corresponds to an existing customer or return an error.
+
+//>>>>>>>>>>>>>>>NO TERMINADO<<<<<<<<<<<<<<
+
+// app.post("/customers/:customerId/orders", (req, res)=>{
+//     const customerParamsId = req.params.customerId;
+//     const newOrderDate = req.body.order_date
+//     const newOrderReference = req.body.order_reference
+//     const customerId = req.body.customer_id
+//     console.log("cust params id > ", parseInt(customerParamsId));
+//     console.log("cust body id > ", customerId);
+
+//     const query ="insert into orders (order_date, order_reference, customer_id) values (($1, $2, $3)";
+//     if (parseInt(customerParamsId) !== customerId){
+//         return res 
+//                 .status(500)
+//                 .send({error: "the customer does not exist"})
+//     }
+//     // INSERT INTO table_name (column1,column2,column3)
+//     // SELECT column1, column2, column3 FROM  table_name
+//     // WHERE column1 = 'some_value'
+//     pool.query(query, [newOrderDate, newOrderReference, customerId])
+//         .then(results => res.json(results.rows))
+//         .catch(error => console.log(error))
+// })
 
 app.get("/suppliers", function(req, res) {
     pool.query('SELECT * FROM suppliers', (error, result) => {
@@ -69,8 +96,30 @@ app.get("/products", (req, res)=>{
 })
 //Add a new POST endpoint `/products` to create a new product (with a product name, a price and a supplier id). 
 //Check that the price is a positive integer and that the supplier ID exists in the database, otherwise return an error.
-app.post("/products", (req,res)=>{
-    
+app.post("/products",  async (req,res)=>{
+   // console.log(req);
+    const newProduct =req.body.product_name;
+    const newProPrice = req.body.unit_price;
+     const supplierId = req.body.supplier_id;
+
+    const supplierIdExist =  await pool.query("select count(*) from products where supplier_id = $1", [supplierId])
+                                .then((result)=>  Math.floor(result.rows[0].count))
+                                //  .catch(error => res.status(500).send(error))
+    console.log('supplierIdExist', supplierIdExist);
+    if (supplierIdExist < 1 )  {
+      return res 
+        .status(400)
+        .send("the supplier does not exist")
+    } else if (!Number.isInteger(newProPrice)) {
+        return res 
+                .status(500)
+                .send({error: "The price is not valid"})
+    }
+    const query = "insert into products (product_name, unit_price, supplier_id) values ($1, $2, $3)";
+    pool.query(query, [newProduct, newProPrice, supplierId])
+    .then(() => res.send("Product succesfully added"))
+    .catch((e) => console.error(e));
+   
 })
 
 // (STRETCH GOAL) Add a new GET endpoint /products to load all the product names along with their supplier names.
