@@ -55,27 +55,31 @@ app.post("/customers", (req, res)=>{
 
 //>>>>>>>>>>>>>>>NO TERMINADO<<<<<<<<<<<<<<
 
-// app.post("/customers/:customerId/orders", (req, res)=>{
-//     const customerParamsId = req.params.customerId;
-//     const newOrderDate = req.body.order_date
-//     const newOrderReference = req.body.order_reference
-//     const customerId = req.body.customer_id
-//     console.log("cust params id > ", parseInt(customerParamsId));
-//     console.log("cust body id > ", customerId);
+app.post("/customers/:customerId/orders", async (req, res)=>{
+    const customerParamsId = req.params.customerId;
+    const newOrderDate = req.body.order_date
+    const newOrderReference = req.body.order_reference
+    const customerId = req.body.customer_id
+    console.log("cust params id > ", parseInt(customerParamsId));
+    console.log("cust body id > ", customerId);
 
-//     const query ="insert into orders (order_date, order_reference, customer_id) values (($1, $2, $3)";
-//     if (parseInt(customerParamsId) !== customerId){
-//         return res 
-//                 .status(500)
-//                 .send({error: "the customer does not exist"})
-//     }
-//     // INSERT INTO table_name (column1,column2,column3)
-//     // SELECT column1, column2, column3 FROM  table_name
-//     // WHERE column1 = 'some_value'
-//     pool.query(query, [newOrderDate, newOrderReference, customerId])
-//         .then(results => res.json(results.rows))
-//         .catch(error => console.log(error))
-// })
+    try {
+        const customerExist = await pool.query("select * from orders where customer_id = $1", [customerParamsId])
+console.log("customerExist.rowCount>>> ", customerExist.rowCount);
+        if (customerExist.rowCount === 0 ){
+        return res 
+        .status(500)
+        .send({error: "the customer does not exist"})
+    }
+}catch (error) {
+    console.error(error);
+    res.status(500).send("something went wrong")
+  } 
+    const query = "insert into orders (order_date, order_reference) values ($1, $2)";
+    pool.query(query, [newOrderDate, newOrderReference])
+        .then(results => res.json("Yout order was submitted"))
+        .catch(error => console.error(error))
+})
 
 app.get("/suppliers", function(req, res) {
     pool.query('SELECT * FROM suppliers', (error, result) => {
