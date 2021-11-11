@@ -53,8 +53,6 @@ app.post("/customers", (req, res)=>{
 //(including an order date, and an order reference) for a customer. 
 //Check that the customerId corresponds to an existing customer or return an error.
 
-//>>>>>>>>>>>>>>>NO TERMINADO<<<<<<<<<<<<<<
-
 app.post("/customers/:customerId/orders", async (req, res)=>{
     const customerParamsId = req.params.customerId;
     const newOrderDate = req.body.order_date
@@ -77,10 +75,61 @@ console.log("customerExist.rowCount>>> ", customerExist.rowCount);
   } 
     const query = "insert into orders (order_date, order_reference) values ($1, $2)";
     pool.query(query, [newOrderDate, newOrderReference])
-        .then(results => res.json("Yout order was submitted"))
+        .then(results => res.json("Your order was submitted"))
         .catch(error => console.error(error))
 })
 
+//Add a new PUT endpoint `/customers/:customerId` to update an existing customer (name, address, city and country).
+app.put("/customers/:customerId", (req,res)=>{
+    const customerId = req.params.customerId;
+    const changeName = req.body.name;
+    const changeAddress = req.body.address;
+    const changeCity = req.body.city;
+    const changeCountry = req.body.country;
+
+    pool
+    .query("UPDATE customers SET name=$1, address=$2, city=$3, country=$4 WHERE id=$5", 
+            [changeName, changeAddress, changeCity, changeCountry, customerId])
+    .then(() => res.send(`Customer ${customerId} updated!`))
+    .catch((e) => console.error(e));
+})
+
+//Add a new DELETE endpoint `/orders/:orderId` to delete an existing order along all the associated order items.
+app.delete("/orders/:orderId", (req,res)=>{
+    const orderId = req.params.orderId;
+
+    pool
+        .query("delete from order_items where order_id=$1", [orderId])
+        .then(()=>{
+            pool.query("delete from orders where id=$1", [orderId])
+                .then(()=> res.send(`order ${orderId} was deleted`))
+                .catch((e)=> res.send(e))
+        })
+
+})
+
+//- Add a new DELETE endpoint `/customers/:customerId` to delete an existing customer only if this customer doesn't have orders.
+app.delete("/customers/:customerId", async (req,res)=>{
+    const customerId = req.params.customerId;
+    const query = "delete from customers where id=$1";
+    console.log(req);
+    console.log(parseInt(customerId));
+    const customerExist =  await pool.query("select count(*) from customers where id = $1", [customerId])
+    .then((result)=>  Math.floor(result.rows[0].count))
+    //  .catch(error => res.status(500).send(error))
+console.log('customerExist', customerExist);
+if (customerExist < 1 )  {
+return res 
+.status(400)
+.send("the customer does not exist")
+    } else {
+        pool
+        .query(query, [customerId])
+        .then(()=> res.send("customer " + customerId + " was deleted"))
+        .catch(()=>{res.send(`you can't delete customer ${customerId}`)})
+    }
+  
+})
 app.get("/suppliers", function(req, res) {
     pool.query('SELECT * FROM suppliers', (error, result) => {
         res.json(result.rows);
