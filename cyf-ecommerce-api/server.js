@@ -61,8 +61,8 @@ app.get("/customers/:customerId", (req, res) => {
 app.get("/customers/:customerId/orders", (req, res) => {
     const customerId = req.params.customerId;
     const query =
-        `select s.supplier_name as "supplier", p.product_name as "prodcut name", p.unit_price as "price", oi.quantity, o.order_reference as "order reference", o.order_date as "order date" from customers c join orders as o on o.customer_id = c.id join order_items as oi on oi.order_id = o.id join products as p on p.id = oi.product_id join suppliers as s on s.id = p.supplier_id where c.id=${customerId}`
-    pool.query(query)
+        'select s.supplier_name as "supplier", p.product_name as "prodcut name", p.unit_price as "price", oi.quantity, o.order_reference as "order reference", o.order_date as "order date" from customers c join orders as o on o.customer_id = c.id join order_items as oi on oi.order_id = o.id join products as p on p.id = oi.product_id join suppliers as s on s.id = p.supplier_id where c.id=$1'
+    pool.query(query, [customerId])
         .then((result) => res.status(200).send(result.rows))
         .catch((error) => {console.log(error); res.status(400).send({ error: "something went wrong" })})
 })
