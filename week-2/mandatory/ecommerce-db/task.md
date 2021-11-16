@@ -9,10 +9,47 @@ Below you will find a set of tasks for you to complete to set up a databases of 
 To submit this homework write the correct commands for each question here:
 
 ```sql
+1. select name, address from customers where country='United States'; 
+
+2. select * from customers order by name asc; 
+
+3. select * from products where unit_price > 100;
+
+4. select * from products where product_name like '%socks%';
+
+5. SELECT * FROM products ORDER BY unit_price desc limit 5;
+
+6. select product_name, unit_price, supplier_name from products
+    left join suppliers on supplier_id=products.supplier_id; 
+
+7. select product_name, supplier_name from products 
+    join suppliers on suppliers.id= products.supplier_id  
+    where suppliers.country = 'United Kingdom'; 
+
+8. select * from orders where customer_id = 1;
+
+9. select name, order_reference, order_date from orders 
+    left join customers on customers.id=orders.customer_id
+    where customers.name = 'Hope Crosby';
+
+10. select product_name, unit_price, quantity from products as p
+    join order_items as oi on oi.product_id = p.id
+    join orders as o on o.id = oi.order_id 
+    where o.order_reference = 'ORD006';
+
+11. select name, order_reference, order_date, product_name, supplier_name, quantity from customers as cus
+    join orders as o on o.customer_id = cus.id 
+    join order_items as oi on oi.order_id = o.id 
+    join products as pro on pro.id = oi.product_id 
+    join suppliers as s on s.id = pro.supplier_id ;
+
+12. select name, suppliers.country from customers
+    cross join suppliers 
+    where suppliers.country ='China'
 
 
 ```
-
+1
 When you have finished all of the questions - open a pull request with your answers to the `Databases-Homework` repository.
 
 ## Setup
@@ -26,7 +63,7 @@ createdb cyf_ecommerce
 Import the file [`cyf_ecommerce.sql`](./cyf_ecommerce.sql) in your newly created database:
 
 ```sql
-psql -d cyf_ecommerce -f cyf_ecommerce.sql
+
 ```
 
 Open the file `cyf_ecommerce.sql` in VSCode and make sure you understand all the SQL code. Take a piece of paper and draw the database with the different relations between tables. Identify the foreign keys and make sure you understand the full database schema.

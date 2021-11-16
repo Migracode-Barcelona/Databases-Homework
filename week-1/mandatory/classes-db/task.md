@@ -7,7 +7,42 @@ Below you will find a set of tasks for you to complete to set up a databases of 
 To submit this homework write the correct commands for each question here:
 
 ```sql
-
+TASK
+1. create database cyf_classes; 
+   \c cyf_classes; to connect to that database.
+2. create table mentors(id serial primary key, name varchar(40) not null, years_in_Glasgow int, address varchar(50), pgm_language varchar(50));
+3.INSERT INTO mentors (id serial primary key, name, years_in_glasgow, address, pgm_language) 
+   VALUES   ('Juan Arrazal', 4, '301 Argyle St G2 82L', 'JavaScript')
+            ('John Brianten', 30, '11 Blythwood Square G24AD', 'Python'),
+            ('Sara Berlinger', 7, '33 Gordon St G13SL', 'Python, C++'),
+            ('Samantha Saransan', 12, '16 S Frederick St G11HJ', 'PHP'),
+            ('Claudio Paul Caniggia', 2, '150 Edmiston Dr G51 2XD', 'Java');
+4. create table students(name varchar(50) not null, address varchar(50), graduated BOOLEAN);
+5. INSERT INTO students (name, address, graduated) 
+   VALUES   ('Pepe Monje','2 Hill St G36RN','t'),
+            ('Zenon Paprika', '83 Wannabe Rd G63CZ', 'f'),
+            ('Will Parnasus','12 Wallace St H23JC', 't'),
+            ('Dora Explorer', '69 Brickell Key Drive H23JC','t'),
+            ('Xavier Rodbel', '931 Sarmient St A64F', 'f'),
+            ('Clancy Wiggum', '123 False St F32PN', 'f'),
+            ('Diego Funck', '253 Waterloo St F32PN', 't'),
+            ('Michael Jordan', '23 Chicago St H65PL', 'f'),
+            ('Mark Renton', '43 Off Rd H65PL', 'f'),
+            ('Francis Begbie','43 Siracusa St Y53NL', 'f');
+6. select * from students; 
+   select * from mentors;
+7. create table classes(id serial primary key, topic varchar(20) not null, mentor varchar(50), date date, location varchar(50));
+8. INSERT INTO classes (topic, mentor, date, location) VALUES ('Java Script', 'Juan Arrazal', '2021-08-01', '12 Horizon St H67JK');
+   - ALTER TABLE classes ADD student_id int constraint fk_student_id references students(id); <<<CREE COLUMNA student_id QUE HACE REFERENCIA AL ID DE LA TABLA students>>>. Lo mismo hice con mentors. 
+9. create table attendances (id serial primary key, class int references classes(id), student int references students(id));
+10.
+   _ select * from mentors where years_in_glasgow>5;
+   _ select * from mentors where pgm_language = 'JavaScript';
+   _ select * from students where graduated ='t';
+   _ select * from classes where date < '2021-06-30';
+   _ select s.id, name from students as s
+      left join attendances as a on a.student=s.id
+      where class=2;
 
 ```
 
