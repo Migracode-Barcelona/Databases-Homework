@@ -7,8 +7,98 @@ Below you will find a set of tasks for you to complete to set up a databases of 
 To submit this homework write the correct commands for each question here:
 
 ```sql
+1.
+createdb cyf_classes
+psql cyf_classes
 
+2.
+CREATE TABLE mentors (
+  id        SERIAL PRIMARY KEY,
+  name      VARCHAR(30) NOT NULL,
+  glasgow_years     int NOT NULL,
+  address   VARCHAR(120),
+  fav_prog_language      VARCHAR(50)
+);
 
+3.
+INSERT INTO mentors (name, glasgow_years, address, fav_prog_language) VALUES ('John Smith','2','11 New Road','React');
+INSERT INTO mentors (name, glasgow_years, address, fav_prog_language) VALUES ('Daniel Doe','1','11 New Road','Node');
+INSERT INTO mentors (name, glasgow_years, address, fav_prog_language) VALUES ('Javier Perez','5','11 New Road','Java');
+INSERT INTO mentors (name, glasgow_years, address, fav_prog_language) VALUES ('Enrique García','4','11 New Road','PHP');
+INSERT INTO mentors (name, glasgow_years, address, fav_prog_language) VALUES ('Valentina Lopez','2','11 New Road','Python');
+
+4.
+CREATE TABLE students (
+  id        SERIAL PRIMARY KEY,
+  name      VARCHAR(30) NOT NULL,
+  address   VARCHAR(120),
+  graduated      VARCHAR(5)
+);
+
+5.
+INSERT INTO students (name,address,graduated) VALUES
+	 ('John Nava','2 New Road','yes'),
+	 ('Alexender Flaming','7 Lluna','no'),
+	 ('Stuard Broad','10 Sant Pau','no'),
+	 ('Gayle Jordan','11 West Feri','yes'),
+	 ('Leoarndo Rafsan','21 Hamilton Road','yes'),
+    ('Victar Alex','12 Dock Road','yes'),
+	 ('Nicolas Fernandes','14 Charls Road','yes'),
+	 ('Franko Albert','27 Dhanmondi','yes'),
+	 ('Newton Dario','11 Banani','no'),
+	 ('Juan Albez','15 Paloma','yes');
+    
+    
+6.
+SELECT * from mentors;
+SELECT * from students;
+
+7.
+CREATE TABLE classes (
+  id        SERIAL PRIMARY KEY,
+  mentor_id INT REFERENCES mentors(id),
+  topic      VARCHAR(30),
+  date   DATE NOT NULL,
+  location      VARCHAR(30) NOT NULL
+);
+
+8.    
+INSERT INTO classes (mentor_id,topic,"date","location") VALUES
+	 (1,'Node','2020-11-30','online'),
+	 (2,'Java','2020-11-30','online'),
+	 (3,'C++','2020-11-30','online');
+
+9.
+CREATE TABLE attendance (
+  id        SERIAL PRIMARY KEY,
+  student_id INT REFERENCES students(id),
+  class_id INT REFERENCES classes(id)
+);
+
+INSERT INTO attendance (student_id,class_id) VALUES
+	 (1,2),
+    (3,2),
+    (2,1),
+    (4,1);
+
+10.
+ Retrieve all the mentors who lived more than 5 years in Glasgow
+    - Retrieve all the mentors whose favourite language is Javascript
+    
+    SELECT * FROM mentors WHERE fav_prog_language = 'Javascript';
+    
+    - Retrieve all the students who are CYF graduates
+    
+    SELECT * FROM students WHERE graduated = 'yes';
+    
+    - Retrieve all the classes taught before June this year
+    
+    SELECT * FROM classes WHERE date < '2022-02-02';
+    
+    - Retrieve all the students (retrieving student ids only is fine) who attended the Javascript class (or any other class that you have in the `classes` table).
+    
+    select * FROM students WHERE id in (SELECT student_id FROM attendance WHERE class_id = 1);
+    SELECT students.name FROM students INNER JOIN attendance ON (students.id = attendance.student_id) INNER JOIN classes ON (classes.id = attendance.class_id) WHERE classes.topic='Node';
 ```
 
 When you have finished all of the questions - open a pull request with your answers to the `Databases-Homework` repository.
