@@ -1,7 +1,7 @@
 const express = require("express");
 const {Pool, Client} = require("pg");
 
-const PORT = 3001;
+const PORT = 3005;
 const app = express();
 
 
@@ -34,7 +34,7 @@ app.get("/suppliers", function(req, res) {
 
 
 app.get("/products", function(req, res) {
-    pool.query('select * from products', (error, response) => {
+    pool.query('select products.product_name, suppliers.supplier_name from products join suppliers on products.supplier_id = suppliers.id;', (error, response) => {
         if (error) {
             console.log("Something is wrong" + error)
         }
