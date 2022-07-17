@@ -9,6 +9,122 @@ Below you will find a set of tasks for you to complete to set up a databases of 
 To submit this homework write the correct commands for each question here:
 
 ```sql
+select * from customers
+
+--select all customers from USA
+
+select * from customers where customer.country= 'United States'
+
+--customers country descending cities ascending 
+select * from customers order by country desc , city asc
+
+
+--customers ordered by ascending name
+select * from customers order by name 
+
+--products which cost more than 100
+select * from products where unit_price > 100
+
+--products whose name contains the word socks
+select * from products where product_name like '%socks%'
+
+--super warm socks from cheapest suppliers 
+select suppliers.supplier_name from suppliers join products on products.supplier_id = suppliers.id
+where products.product_name ='Super warm socks' order by products.unit_price;
+
+
+-- the 5 most expensive products
+select unit_price from products order by unit_price  desc limit 5;
+
+-- all the products with their corresponding suppliers. The result should only contain the columns product_name, unit_price and supplier_name
+
+select * from products;
+select * from suppliers;
+
+
+select products.product_name , products.unit_price, suppliers.supplier_name
+from products join suppliers on products.supplier_id = suppliers.id;
+
+
+
+---Retrieve all the products sold by suppliers based in the United Kingdom. 
+--The result should only contain the columns product_name and supplier_name.
+
+select * from  suppliers;
+select * from products;
+
+select products.product_name , suppliers.supplier_name
+from products join suppliers on products.supplier_id = suppliers.id
+where suppliers.country = 'United Kingdom';
+
+
+--Retrieve all orders from customer ID 1
+
+
+select * from  orders where customer_id = 1;
+
+select * from orders;
+select * from customers;
+
+--Retrieve all orders from customer named Hope Crosby
+
+select * from orders join customers on orders.customer_id = customers.id
+where customers.name = 'Hope Crosby';
+
+--orders from not hoope amber and austin 
+select * from orders join customers on orders.customer_id = customers.id
+where customers.name != 'Hope Crosby' and customers.name != 'Amber Tran' and customers.name != 'Quintessa Austin';
+
+
+
+--all the products in the order ORD006. The result should only contain the columns product_name, unit_price and quantity.
+--Retrieve all the products with their supplier for all orders of all customers. The result should only contain the columns name (from customer), order_reference order_date, product_name, supplier_name and quantity.
+select * from order_items;
+
+select products.product_name, products.unit_price, order_items.quantity
+from products join order_items on order_items.product_id  = products.id
+join orders on orders.id =order_items.order_id 
+where orders.order_reference = 'ORD006';
+
+
+select* from products;
+select * from order_items;
+select* from orders;
+
+-- Retrieve all the products with their supplier for all orders of all customers. The result should only contain 
+-- the columns name (from customer), order_reference order_date, product_name, supplier_name and quantity.
+select customers.name, orders.order_reference, orders.order_date, products.product_name, suppliers.supplier_name, order_items.quantity  
+from products join order_items on products.id = order_items.product_id
+join orders on orders.id = order_items.order_id 
+join customers on customers.id = orders.customer_id
+join suppliers on products.supplier_id = suppliers.id;
+
+--Retrieve the names of all customers who bought a product from a supplier from China.
+
+-- Retrieve all the products with their supplier for all orders of all customers. The result should only contain 
+-- the columns name (from customer), order_reference order_date, product_name, supplier_name and quantity.
+select distinct customers.name  
+from products join order_items on products.id = order_items.product_id
+join orders on orders.id = order_items.order_id 
+join customers on customers.id = orders.customer_id
+join suppliers on products.supplier_id = suppliers.id
+where suppliers.country = 'China';
+
+--select name of the supploers which is in the same country as Quintessa
+--join not FK
+select s.supplier_name, c.country  as customer_country, s.country as supplier_country
+from suppliers s  join customers c on c.country =s.country 
+where c.name = 'Quintessa Austin'
+--sub queries 
+
+select supplier_name from suppliers s 
+where s.country = (
+	select country from customers where name = 'Quintessa Austin'
+)
+
+
+
+
 
 
 ```
