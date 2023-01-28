@@ -9,6 +9,48 @@ Below you will find a set of tasks for you to complete to set up a databases of 
 To submit this homework write the correct commands for each question here:
 
 ```sql
+select * from customers;
+
+select name, address from customers where country = 'United States'; --1
+
+select * from customers order by name; --2
+
+select * from products where unit_price > 100; --3
+
+select * from products where product_name like '%socks%'; --4
+
+select unit_price from products order by unit_price desc limit 5; --5
+
+select products.product_name, products.unit_price, suppliers.supplier_name
+from products join suppliers on suppliers.id = products.supplier_id; --6
+
+select products.product_name, suppliers.supplier_name
+from products join suppliers on suppliers.id = products.supplier_id
+where suppliers.country = 'United Kingdom'; --7
+
+select * from orders where customer_id = 1; --8
+
+select * from orders join customers on customers.id = orders.customer_id
+where customers.name = 'Hope Crosby'; --9
+
+select products.product_name, products.unit_price, order_items.quantity
+from products join order_items on products.id = order_items.product_id
+join orders on order_items.order_id = orders.id
+where orders.order_reference = 'ORD006'; --10
+
+select customers.name, orders.order_reference, orders.order_date, products.product_name, suppliers.supplier_name
+from products join order_items on products.id = order_items.product_id
+join orders on orders.id = order_items.order_id
+join customers on customers.id = orders.customer_id
+join suppliers on products.supplier_id = suppliers.id; --11
+
+select customers.name from customers join orders on customers.id = orders.customer_id
+join order_items on orders.id = order_items.order_id
+join products on products.id = order_items.product_id
+join suppliers on products.supplier_id = suppliers.id
+where suppliers.country = 'China'; --12
+
+
 
 
 ```
