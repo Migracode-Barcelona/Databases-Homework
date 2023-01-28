@@ -7,6 +7,95 @@ Below you will find a set of tasks for you to complete to set up a databases of 
 To submit this homework write the correct commands for each question here:
 
 ```sql
+drop table if exists class_attendance;
+drop table if exists classes;
+drop table if exists students;
+drop table if exists mentors;
+
+
+
+
+create table if not exists mentors (
+ id 					serial primary key,
+ name 					varchar(30) not null,
+ glassgow_living_period	smallint not null,
+ address 				varchar(120) not null,
+ fav_PL 				varchar(30)
+);
+
+
+create table if not exists students(
+ id 			serial primary key,
+ name 			varchar(30) not null,
+ address 		varchar(120) not null,
+ graduated 		boolean
+);
+
+
+create table if not exists classes(
+ id 			serial primary key,
+ mentor_id 		int References mentors(id),
+ topic 			varchar(60),
+ taught_date 	date not null,
+ address 		varchar(60)
+);
+
+create table if not exists class_attendance(
+ id 			serial primary key,
+ student_id		int references students(id),
+ class_id		int references classes(id)
+);
+
+
+insert into mentors (name, glassgow_living_period, address, fav_pl)
+values ('marco', 3, 'barcelon', 'javascript'),
+('mali', 4, 'barcelona', 'sql'),
+('ali', 2, 'madrid', 'php'),
+('carlos', 9, 'valencia', 'javascript'),
+('pedro', 6, 'toledo', 'c++'),
+('alex', 4, 'lleida', 'javascript'),
+('mani', 8, 'jaca', 'typescript');
+
+insert into students(name, address, graduated)
+values ('ali', 'barcelona', false ),
+('abubakar', 'madrid', true ),
+('pedro', 'zargoza', false ),
+('carlos', 'barcelona', true ),
+('mani', 'lleida', false ),
+('marco', 'valencia', true ),
+('hafiz', 'bcn', true ),
+('manpreet', 'portugal', true ),
+('nuno', 'cordoba', false );
+
+insert into classes (mentor_id, taught_date)
+values(5, '2022/12/10'),
+(3, '2022/02/04');
+insert into classes (mentor_id, taught_date, topic) values(1, '2021/10/15', 'javascript');
+
+
+insert into class_attendance (student_id, class_id)
+values(5,3),(3,2),(4,2),(1,3);
+
+select * from mentors;
+select * from students limit 3;
+select * from students where graduated = true limit 3;
+select * from students where name like 'a%' limit 2;
+select s.name from class_attendance as ca
+join students as s
+on ca.student_id=s.id
+where s.name like 'm%'
+limit 4;
+
+select s.name from class_attendance as ca
+join students as s
+on ca.student_id=s.id
+join classes as c
+on c.id = ca.class_id
+where c.taught_date = '2022/12/10';
+
+select * from mentors where glassgow_living_period > 5;
+select * from mentors where fav_pl = 'javascript';
+
 
 
 ```
